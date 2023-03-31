@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 
-public class Main {
+public class Server_Master {
 
     public static void main(String[] args) throws IOException {
 
         args = new String[] { "30121" };
 
         if (args.length != 1) {
-            System.err.println("Usage: Java EcohServer <port number>");
+            System.err.println("Usage: Java EchoServer <port number>");
             System.exit(1);
         }
         int portNumber = Integer.parseInt(args[0]);
