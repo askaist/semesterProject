@@ -1,3 +1,5 @@
+import threads.ClientRequestThread;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -23,11 +25,18 @@ public class Client {
                 BufferedReader responseReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 ) {
 
-            requestWriter.println("hello world");
+
+            Thread requestWriterThread = new ClientRequestThread(requestWriter, "hello world");
+            requestWriterThread.start();
+            requestWriterThread.join();
+
+
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
