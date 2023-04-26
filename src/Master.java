@@ -1,3 +1,5 @@
+import threads.MasterReaderThread;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,9 +26,16 @@ public class Master {
                 BufferedReader clientRequestReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 ) {
 
-            System.out.println(clientRequestReader.readLine());
 
-        } catch (IOException e) {
+            MasterReaderThread masterReaderThread = new MasterReaderThread(clientRequestReader);
+            masterReaderThread.start();
+            masterReaderThread.join();
+            String clientRequest = masterReaderThread.getClientRequest();
+            System.out.println(clientRequest);
+
+
+
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 

@@ -15,5 +15,6 @@ public class ClientRequestThread extends Thread{
     @Override
     public void run() {
         requestWriter.println(msg);
+        System.out.println("requested job of type " + msg);
     }
 }
