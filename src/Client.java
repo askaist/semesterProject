@@ -1,4 +1,5 @@
 import threads.ClientRequestThread;
+import threads.ClientResponseThread;
 
 import java.io.*;
 import java.net.Socket;
@@ -35,13 +36,13 @@ public class Client {
                 System.err.println("Invalid job type submitted");
                 System.exit(1);
             }
-//            Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
-//            Thread responseReaderThread = new ClientResponseThread(responseReader);
+            Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
+            Thread responseReaderThread = new ClientResponseThread(responseReader);
 
-//            requestWriterThread.start();
-//            responseReaderThread.start();
-//            responseReaderThread.join();
-//            requestWriterThread.join();
+            requestWriterThread.start();
+            responseReaderThread.start();
+            responseReaderThread.join();
+            requestWriterThread.join();
 
 //            String masterResponse = (ClientResponseThread) responseReaderThread.getResponse();
 
@@ -49,6 +50,8 @@ public class Client {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
