@@ -5,6 +5,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Objects;
+import java.util.Scanner;
+
 public class Client {
 
     public static void main(String[] args) {
@@ -19,30 +21,39 @@ public class Client {
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
 
-        String jobType = args[0];
+        String jobType;
+        String response;
 
         try (Socket clientSocket = new Socket(hostName, portNumber);
              PrintWriter requestWriter = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader responseReader = new BufferedReader(
-                     new InputStreamReader(clientSocket.getInputStream()));) {
+                     new InputStreamReader(clientSocket.getInputStream()));
+             Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Connection established");
 
             //Get input from client
             System.out.println("Enter a job value: A or B ");
-            String message = responseReader.readLine().strip();
+            jobType = scanner.nextLine();
             // sends message to server
-            requestWriter.println(message);
+            requestWriter.println(jobType);
 
             if (!Objects.equals(jobType, "A") && !Objects.equals(jobType, "B")) {
                 System.err.println("Invalid job type submitted");
                 System.exit(1);
             }
             Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
-            Thread responseReaderThread = new ClientResponseThread(responseReader);
+            ClientResponseThread responseReaderThread = new ClientResponseThread(responseReader);
 
             requestWriterThread.start();
             responseReaderThread.start();
-            responseReaderThread.join();
+
+
             requestWriterThread.join();
+            responseReaderThread.join();
+            response = responseReaderThread.getResponse();
+
+            System.out.println(response);
+
 
 //            String masterResponse = (ClientResponseThread) responseReaderThread.getResponse();
 

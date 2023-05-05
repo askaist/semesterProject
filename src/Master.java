@@ -1,4 +1,5 @@
 import threads.MasterReaderThread;
+import threads.MasterResponseThread;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class Master {
         }
 
         int portNumber = Integer.parseInt(args[0]);
+        System.out.println("Server is Up");
 
         try (
                 ServerSocket masterServerSocket = new ServerSocket(portNumber);
@@ -27,13 +29,21 @@ public class Master {
                 ) {
 
 
+
             MasterReaderThread masterReaderThread = new MasterReaderThread(clientRequestReader);
             masterReaderThread.start();
             masterReaderThread.join();
+
+
+
+
+
             String clientRequest = masterReaderThread.getClientRequest();
             System.out.println(clientRequest);
 
-
+            MasterResponseThread masterResponseThread = new MasterResponseThread(clientResponseWriter, "hello");
+            masterResponseThread.start();
+            masterResponseThread.join();
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
