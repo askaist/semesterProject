@@ -11,7 +11,7 @@ public class Client {
 
     public static void main(String[] args) {
 
-        args = new String[] { "127.0.0.1", "30121" };
+        args = new String[]{"127.0.0.1", "30121"};
 
         if (args.length != 2) {
             System.err.println("Usage: java EchoClient <host name> <port number>");
@@ -22,13 +22,12 @@ public class Client {
         int portNumber = Integer.parseInt(args[1]);
 
         String jobType;
-        String response;
 
         try (Socket clientSocket = new Socket(hostName, portNumber);
              PrintWriter requestWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader responseReader = new BufferedReader(
-                     new InputStreamReader(clientSocket.getInputStream()));
-             Scanner scanner = new Scanner(System.in)) {
+             BufferedReader responseReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             Scanner scanner = new Scanner(System.in))
+        {
             System.out.println("Connection established");
 
             //Get input from client
@@ -41,24 +40,41 @@ public class Client {
                 System.err.println("Invalid job type submitted");
                 System.exit(1);
             }
-            Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
-            ClientResponseThread responseReaderThread = new ClientResponseThread(responseReader);
+//            Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
+//            ClientResponseThread responseReaderThread = new ClientResponseThread(responseReader);
+//
+//            requestWriterThread.start();
+//            responseReaderThread.start();
+//
+//
+//            requestWriterThread.join();
+//            responseReaderThread.join();
+//            response = responseReaderThread.getResponse();
+//
+//            System.out.println(response);
 
-            requestWriterThread.start();
-            responseReaderThread.start();
+            Thread clientRequestThread = new Thread(() -> {
+                requestWriter.println(jobType);
+            });
+            clientRequestThread.start();
 
 
-            requestWriterThread.join();
-            responseReaderThread.join();
-            response = responseReaderThread.getResponse();
+            Thread clientResponseThread = new Thread(() -> {
+                try {
+                    String response = responseReader.readLine();
+                    System.out.println(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            clientResponseThread.start();
 
-            System.out.println(response);
+            clientRequestThread.join();
+            clientResponseThread.join();
 
 
 //            String masterResponse = (ClientResponseThread) responseReaderThread.getResponse();
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
