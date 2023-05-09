@@ -1,9 +1,5 @@
-import threads.ClientRequestThread;
-import threads.ClientResponseThread;
-
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.Scanner;
 
