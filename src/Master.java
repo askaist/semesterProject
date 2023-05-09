@@ -20,7 +20,8 @@ public class Master {
 
         try (
                 ServerSocket masterClientSocket = new ServerSocket(30121);
-                ServerSocket masterSlaveSocket = new ServerSocket(30122);
+                ServerSocket masterSlaveASocket = new ServerSocket(30122);
+                ServerSocket masterSlaveBSocket = new ServerSocket(30123)
 //                Socket clientSocket = masterClientSocket.accept();
 //                Socket slaveSocket = masterSlaveSocket.accept();
 //                PrintWriter clientResponseWriter = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -30,22 +31,27 @@ public class Master {
 //                BufferedReader slaveResponseReader = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
 
 
-
-                ) {
+        ) {
 
             System.out.println("Master server started");
 
             LinkedList<SlaveThread> slaves = new LinkedList<>();
 
-            for (int i = 1; i < 3; i++) {
-                Socket slave = masterSlaveSocket.accept();
-                System.out.println("slave " + i + " connected: " + slave.getInetAddress().getHostAddress());
 
-                // Start slave thread
-                SlaveThread slaveThread = new SlaveThread(slave);
-                slaves.add(slaveThread);
-                slaveThread.start();
-            }
+            Socket slaveA = masterSlaveASocket.accept();
+            Socket slaveB = masterSlaveBSocket.accept();
+
+            // Start slaveA thread
+            SlaveThread slaveThreadA = new SlaveThread(slaveA);
+            slaves.add(slaveThreadA);
+            slaveThreadA.start();
+            System.out.println("slave A connected");
+
+            // Start slaveB thread
+            SlaveThread slaveThreadB = new SlaveThread(slaveB);
+            slaves.add(slaveThreadB);
+            slaveThreadB.start();
+            System.out.println("slave B connected");
 
 
             while (true) {
@@ -63,9 +69,8 @@ public class Master {
                 }
 
 
-
-                // Pass job type to slave threads
-                System.out.println("sending the job to a slave");
+                // Pass job type to slaveA threads
+                System.out.println("sending the job to a slaveA");
                 for (SlaveThread slaveThread : slaves) {
                     slaveThread.setJobType(clientThread.getJobType());
                 }
@@ -80,13 +85,9 @@ public class Master {
             }
 
 
-
 //            MasterReaderThread masterReaderThread = new MasterReaderThread(clientRequestReader);
 //            masterReaderThread.start();
 //            masterReaderThread.join();
-
-
-
 
 
 //            String clientRequest = masterReaderThread.getClientRequest();

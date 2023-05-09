@@ -5,7 +5,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class SlaveB {
-    public static final int PREFERRED_WORK = 2;
+    public static final String PREFERRED_WORK = "B";
+    public static final String NOT_PREFERRED_WORK = "A";
     public static final int SLEEP_PREFERRED = 2000;
     public static final int SLEEP_NON_PREFERRED = 10000;
 
@@ -18,33 +19,39 @@ public class SlaveB {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(connectionToServer.getInputStream()));
         PrintWriter pw = new PrintWriter(connectionToServer.getOutputStream());
-        String work;
-        while ((work = br.readLine()) != null) {
-            System.out.println("Received work string: "+work);
-            int workType = Character.getNumericValue(work.charAt(0));
-            work = work.substring(1);
-            int result;
-            if (workType == 1) {
-                result = work1(work);
-            } else if (workType == 2) {
-                result = work2(work);
-            } else {
-                throw new IllegalArgumentException("Worktype: " + workType + " is unrecognized");
+        String jobType;
+        while (true) {
+            while ((jobType = br.readLine()) != null) {
+                System.out.println("Received jobType string: "+jobType);
+                System.out.println("doing job");
+//            int result;
+//            if (jobType.equals(PREFERRED_WORK)) {
+//                result = work1(jobType);
+//
+//            } else if (jobType.equals(NOT_PREFERRED_WORK)) {
+//                result = work2(jobType);
+//            } else {
+//                throw new IllegalArgumentException("Job type: " + jobType + " is unrecognized");
+//            }
+                sleepAfterWork((jobType));
+                System.out.println("job completed");
+                pw.println("job completed");
+                pw.flush();
             }
-            sleepAfterWork((workType));
-            pw.println(result);
-            pw.flush();
         }
+
     }
 
-    public static void sleepAfterWork(int workType) {
+    public static void sleepAfterWork(String jobType) {
         try {
-            if (workType == PREFERRED_WORK) {
+            if (jobType.equals(PREFERRED_WORK)) {
                 System.out.println("Sleeping for: "+SLEEP_PREFERRED);
                 Thread.sleep(SLEEP_PREFERRED);
-            } else {
+            } else if (jobType.equals(NOT_PREFERRED_WORK)) {
                 System.out.println("Sleeping for: "+SLEEP_NON_PREFERRED);
                 Thread.sleep(SLEEP_NON_PREFERRED);
+            } else {
+                throw new IllegalArgumentException("Job type: " + jobType + " is unrecognized");
             }
         } catch (InterruptedException ignore) {
         }
@@ -76,8 +83,11 @@ public class SlaveB {
 //        String host = args[0];
 //        int port = Integer.parseInt((args[1]));
         String host = "127.0.0.1";
-        int port = 30122;
+        int port = 30123;
         Socket connectionToServer = connectToServer(host, port);
         doWorkIndefinitely(connectionToServer);
     }
+
+
+
 }
