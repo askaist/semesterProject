@@ -10,11 +10,15 @@ public class SlaveThread extends Thread {
     private Socket slave;
     String jobType;
     boolean jobCompleted = false;
-
+    int jobID;
 
 
     public SlaveThread(Socket slave) {
         this.slave = slave;
+    }
+
+    public void setJobID(int jobID) {
+        this.jobID = jobID;
     }
 
     public boolean getJobCompleted() {
@@ -31,28 +35,38 @@ public class SlaveThread extends Thread {
                 PrintWriter out = new PrintWriter(slave.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(slave.getInputStream()))
         ) {
-            System.out.println("Slave thread started for " + slave.getInetAddress().getHostAddress());
+            System.out.println("Slave thread started");
 
 
-
-            while (jobType == null){
-                Thread.sleep(200);
-            }
-            // Send jobType to slave
-            out.println(jobType);
-            System.out.println("job sent to slave");
-
-
-            // Read slave requests and send responses
-            System.out.println("wait for response from slave");
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-//                out.println("Response from server for request " + inputLine);
-                if (inputLine.equals("job completed")) {
-                    System.out.println("slave completed job");
-                    jobCompleted = true;
+            while (true) {
+                while (jobType == null) {
+                    Thread.sleep(200);
                 }
+
+                // Send jobType to slave
+                out.println(jobType);
+                out.println(jobID);
+
+
+                // Read slave requests and send responses
+                System.out.println("wait for response from slave");
+                String inputLine;
+                inputLine = in.readLine();
+
+                if (inputLine.equals("job completed")) {
+                    System.out.println("slave completed job of id " + jobID);
+                    synchronized (this) {
+                        jobCompleted = true;
+                    }
+                    Thread.sleep(200);
+                    jobCompleted = false;
+                    jobType = null;
+                }
+
+
             }
+
+
         } catch (IOException | InterruptedException e) {
             System.err.println("Error in slave thread for " + slave.getInetAddress().getHostAddress() + ": " + e.getMessage());
         }

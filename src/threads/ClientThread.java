@@ -10,9 +10,11 @@ public class ClientThread extends Thread {
     private Socket client;
     String jobType;
     boolean jobCompleted = false;
+    int id;
 
-    public ClientThread(Socket client) {
+    public ClientThread(Socket client, int id) {
         this.client = client;
+        this.id = id;
     }
 
     public void setJobCompleted(boolean jobCompleted) {
@@ -28,18 +30,7 @@ public class ClientThread extends Thread {
         return jobType;
     }
 
-//    public synchronized String getResponse() {
-//        while (taskCompleted == null) {
-//            try {
-//                wait(); // wait until response is available
-//            } catch (InterruptedException e) {
-//                // handle the exception
-//            }
-//        }
-//        String result = response;
-//        response = null;
-//        return result;
-//    }
+
 
     @Override
     public void run() {
@@ -47,30 +38,14 @@ public class ClientThread extends Thread {
                 PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))
         ) {
-            System.out.println("Client thread started for " + client.getInetAddress().getHostAddress());
+            System.out.println("Client thread started");
 
-//            while (true) {
-//                synchronized (this) {
-//                    while (jobType == null) {
-//                        System.out.println("waiting for job");
-//                        wait(); // wait until request is available
-//                    }
-//                    System.out.println("job type " + jobType);
-//                    out.println(jobType);
-//                    jobType = null;
-//                }
-//                String response = in.readLine();
-//                synchronized (this) {
-//                    this.response = response;
-//                    notify(); // notify the thread that response is available
-//                }
-//            }
+
 
             System.out.println("waiting for job");
             jobType = in.readLine();
-            System.out.println("job received of type " + jobType);
+            System.out.println("job received of type " + jobType + " id: " + id);
 
-            System.out.println("waiting on job completion");
             while (!jobCompleted) {
                 Thread.sleep(200);
             }

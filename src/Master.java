@@ -4,7 +4,6 @@ import threads.SlaveThread;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
 
 public class Master {
 
@@ -22,45 +21,43 @@ public class Master {
                 ServerSocket masterClientSocket = new ServerSocket(30121);
                 ServerSocket masterSlaveASocket = new ServerSocket(30122);
                 ServerSocket masterSlaveBSocket = new ServerSocket(30123)
-//                Socket clientSocket = masterClientSocket.accept();
-//                Socket slaveSocket = masterSlaveSocket.accept();
-//                PrintWriter clientResponseWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-//                BufferedReader clientRequestReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//
-//                PrintWriter slaveRequestWriter = new PrintWriter(slaveSocket.getOutputStream(), true);
-//                BufferedReader slaveResponseReader = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
-
-
         ) {
 
             System.out.println("Master server started");
 
-            LinkedList<SlaveThread> slaves = new LinkedList<>();
-
 
             Socket slaveA = masterSlaveASocket.accept();
-            Socket slaveB = masterSlaveBSocket.accept();
+
 
             // Start slaveA thread
             SlaveThread slaveThreadA = new SlaveThread(slaveA);
-            slaves.add(slaveThreadA);
             slaveThreadA.start();
             System.out.println("slave A connected");
 
+
+            Socket slaveB = masterSlaveBSocket.accept();
+
+
             // Start slaveB thread
             SlaveThread slaveThreadB = new SlaveThread(slaveB);
-            slaves.add(slaveThreadB);
             slaveThreadB.start();
             System.out.println("slave B connected");
 
+            int jobsOfTypeA = 0;
+            int jobsOfTypeB = 0;
+            String jobTypeSubmitted;
+            int id = 0;
+
 
             while (true) {
+
+
                 // Accept client connection
                 Socket clientSocket = masterClientSocket.accept();
-                System.out.println("New client connected: " + clientSocket.getInetAddress().getHostAddress());
+                System.out.println("New client connected");
 
                 // Start client thread
-                ClientThread clientThread = new ClientThread(clientSocket);
+                ClientThread clientThread = new ClientThread(clientSocket, id);
                 clientThread.start();
 
                 // Wait for job type to be set
@@ -68,34 +65,61 @@ public class Master {
                     Thread.sleep(200);
                 }
 
+                jobTypeSubmitted = clientThread.getJobType();
+
 
                 // Pass job type to slaveA threads
-                System.out.println("sending the job to a slaveA");
-                for (SlaveThread slaveThread : slaves) {
-                    slaveThread.setJobType(clientThread.getJobType());
+                if (jobTypeSubmitted.equals("A")) {
+                    if (jobsOfTypeA <= 5) {
+                        slaveThreadA.setJobType(clientThread.getJobType());
+                        jobsOfTypeA++;
+                        slaveThreadA.setJobID(id);
+                        System.out.println("Sent job id: " + id + " to Slave A");
+                    } else {
+                        slaveThreadB.setJobType(clientThread.getJobType());
+                        jobsOfTypeB++;
+                        slaveThreadB.setJobID(id);
+                        System.out.println("Sent job id: " + id + " to Slave B");
+                    }
+
                 }
 
-                for (SlaveThread slaveThread : slaves) {
-                    while (!slaveThread.getJobCompleted()) {
-                        Thread.sleep(200);
+                // Pass job type to slaveB threads
+                if (jobTypeSubmitted.equals("B")) {
+                    if (jobsOfTypeB <= 5) {
+                        slaveThreadB.setJobType(clientThread.getJobType());
+                        jobsOfTypeB++;
+                        slaveThreadB.setJobID(id);
+                        System.out.println("Sent job id: " + id + " to Slave B");
+                    } else {
+                        slaveThreadA.setJobType(clientThread.getJobType());
+                        jobsOfTypeA++;
+                        slaveThreadA.setJobID(id);
+                        System.out.println("Sent job id: " + id + " to Slave A");
                     }
-                    clientThread.setJobCompleted(true);
+
                 }
+
+
+                while (!slaveThreadA.getJobCompleted() && !slaveThreadB.getJobCompleted()) {
+                    Thread.sleep(200);
+                }
+
+                clientThread.setJobCompleted(true);
+                if (clientThread.getJobType().equals("A")) {
+                    jobsOfTypeA--;
+                }
+                if (clientThread.getJobType().equals("B")) {
+                    jobsOfTypeB--;
+                }
+
+                id++;
+
 
             }
 
 
-//            MasterReaderThread masterReaderThread = new MasterReaderThread(clientRequestReader);
-//            masterReaderThread.start();
-//            masterReaderThread.join();
 
-
-//            String clientRequest = masterReaderThread.getClientRequest();
-//            System.out.println(clientRequest);
-
-//            MasterResponseThread masterResponseThread = new MasterResponseThread(clientResponseWriter, "hello");
-//            masterResponseThread.start();
-//            masterResponseThread.join();
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

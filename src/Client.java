@@ -36,21 +36,10 @@ public class Client {
                 System.err.println("Invalid job type submitted");
                 System.exit(1);
             }
-//            Thread requestWriterThread = new ClientRequestThread(requestWriter, jobType);
-//            ClientResponseThread responseReaderThread = new ClientResponseThread(responseReader);
-//
-//            requestWriterThread.start();
-//            responseReaderThread.start();
-//
-//
-//            requestWriterThread.join();
-//            responseReaderThread.join();
-//            response = responseReaderThread.getResponse();
-//
-//            System.out.println(response);
 
             Thread clientRequestThread = new Thread(() -> {
                 requestWriter.println(jobType);
+                System.out.println("Job sent to server");
             });
             clientRequestThread.start();
 
@@ -67,9 +56,6 @@ public class Client {
 
             clientRequestThread.join();
             clientResponseThread.join();
-
-
-//            String masterResponse = (ClientResponseThread) responseReaderThread.getResponse();
 
         } catch (IOException e) {
             e.printStackTrace();

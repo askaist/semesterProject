@@ -19,22 +19,16 @@ public class SlaveB {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(connectionToServer.getInputStream()));
         PrintWriter pw = new PrintWriter(connectionToServer.getOutputStream());
+        int jobID;
+        System.out.println("slave B connected");
         String jobType;
         while (true) {
             while ((jobType = br.readLine()) != null) {
-                System.out.println("Received jobType string: "+jobType);
+                jobID = Integer.parseInt(br.readLine());
+                System.out.println("Received jobType "+ jobType + " ID: " + jobID);
                 System.out.println("doing job");
-//            int result;
-//            if (jobType.equals(PREFERRED_WORK)) {
-//                result = work1(jobType);
-//
-//            } else if (jobType.equals(NOT_PREFERRED_WORK)) {
-//                result = work2(jobType);
-//            } else {
-//                throw new IllegalArgumentException("Job type: " + jobType + " is unrecognized");
-//            }
                 sleepAfterWork((jobType));
-                System.out.println("job completed");
+                System.out.println("job ID " + jobID + " completed");
                 pw.println("job completed");
                 pw.flush();
             }
@@ -57,27 +51,6 @@ public class SlaveB {
         }
         System.out.println("Waking");
     }
-
-    // 5 3 1 = 9
-    public static int work1(String work) {
-        String[] strings = work.split(" ");
-        int res = 0;
-        for (String s : strings) {
-            res += Integer.parseInt(s);
-        }
-        return res;
-    }
-
-    // 5 3 1 = 15
-    public static int work2(String work) {
-        String[] strings = work.split(" ");
-        int res = 1;
-        for (String s : strings) {
-            res *= Integer.parseInt(s);
-        }
-        return res;
-    }
-
 
     public static void main(String[] args) throws IOException {
 //        String host = args[0];
