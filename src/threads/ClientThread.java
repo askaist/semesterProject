@@ -44,6 +44,8 @@ public class ClientThread extends Thread {
 
             System.out.println("waiting for job");
             jobType = in.readLine();
+
+
             System.out.println("job received of type " + jobType + " id: " + id);
 
             while (!jobCompleted) {

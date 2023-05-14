@@ -1,4 +1,5 @@
 import threads.ClientThread;
+import threads.MasterLogicThread;
 import threads.SlaveThread;
 
 import java.io.IOException;
@@ -45,13 +46,15 @@ public class Master {
 
             int jobsOfTypeA = 0;
             int jobsOfTypeB = 0;
-            String jobTypeSubmitted;
+            String jobTypeSubmitted = "";
             int id = 0;
 
 
+//            Thread clientResponseThread = new Thread(() -> {
+//
+//            });
+
             while (true) {
-
-
                 // Accept client connection
                 Socket clientSocket = masterClientSocket.accept();
                 System.out.println("New client connected");
@@ -60,60 +63,14 @@ public class Master {
                 ClientThread clientThread = new ClientThread(clientSocket, id);
                 clientThread.start();
 
-                // Wait for job type to be set
-                while (clientThread.getJobType() == null) {
-                    Thread.sleep(200);
-                }
+                MasterLogicThread masterLogicThread = new MasterLogicThread(
+                        jobTypeSubmitted, clientThread, jobsOfTypeA,
+                        jobsOfTypeB, slaveThreadA, slaveThreadB, id
+                );
 
-                jobTypeSubmitted = clientThread.getJobType();
-
-
-                // Pass job type to slaveA threads
-                if (jobTypeSubmitted.equals("A")) {
-                    if (jobsOfTypeA <= 5) {
-                        slaveThreadA.setJobType(clientThread.getJobType());
-                        jobsOfTypeA++;
-                        slaveThreadA.setJobID(id);
-                        System.out.println("Sent job id: " + id + " to Slave A");
-                    } else {
-                        slaveThreadB.setJobType(clientThread.getJobType());
-                        jobsOfTypeB++;
-                        slaveThreadB.setJobID(id);
-                        System.out.println("Sent job id: " + id + " to Slave B");
-                    }
-
-                }
-
-                // Pass job type to slaveB threads
-                if (jobTypeSubmitted.equals("B")) {
-                    if (jobsOfTypeB <= 5) {
-                        slaveThreadB.setJobType(clientThread.getJobType());
-                        jobsOfTypeB++;
-                        slaveThreadB.setJobID(id);
-                        System.out.println("Sent job id: " + id + " to Slave B");
-                    } else {
-                        slaveThreadA.setJobType(clientThread.getJobType());
-                        jobsOfTypeA++;
-                        slaveThreadA.setJobID(id);
-                        System.out.println("Sent job id: " + id + " to Slave A");
-                    }
-
-                }
+                masterLogicThread.start();
 
 
-                while (!slaveThreadA.getJobCompleted() && !slaveThreadB.getJobCompleted()) {
-                    Thread.sleep(200);
-                }
-
-                clientThread.setJobCompleted(true);
-                if (clientThread.getJobType().equals("A")) {
-                    jobsOfTypeA--;
-                }
-                if (clientThread.getJobType().equals("B")) {
-                    jobsOfTypeB--;
-                }
-
-                id++;
 
 
             }
@@ -121,7 +78,7 @@ public class Master {
 
 
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
