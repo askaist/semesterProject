@@ -70,6 +70,7 @@ public class Master {
 
                 masterLogicThread.start();
 
+                id++;
 
 
 

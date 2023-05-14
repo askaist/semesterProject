@@ -74,7 +74,7 @@ public class MasterLogicThread extends Thread {
             if (clientThread.getJobType().equals("B")) {
                 jobsOfTypeB--;
             }
-            id++;
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
