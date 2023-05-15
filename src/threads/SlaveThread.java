@@ -31,10 +31,7 @@ public class SlaveThread extends Thread {
 
     @Override
     public void run() {
-        try (
-                PrintWriter out = new PrintWriter(slave.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(slave.getInputStream()))
-        ) {
+        try (PrintWriter out = new PrintWriter(slave.getOutputStream(), true); BufferedReader in = new BufferedReader(new InputStreamReader(slave.getInputStream()))) {
             System.out.println("Slave thread started");
 
 
@@ -63,10 +60,7 @@ public class SlaveThread extends Thread {
                     jobType = null;
                 }
 
-
             }
-
-
         } catch (IOException | InterruptedException e) {
             System.err.println("Error in slave thread for " + slave.getInetAddress().getHostAddress() + ": " + e.getMessage());
         }

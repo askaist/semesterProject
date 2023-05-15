@@ -10,14 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Master {
 
     public static void main(String[] args) {
-//      args = new String[] { "30121" };
-
-//      if (args.length != 1) {
-//          System.err.println("Usage: java EchoServer <port number>");
-//          System.exit(1);
-//      }
-
-//      int portNumber = Integer.parseInt(args[0]);
 
         try (ServerSocket masterClientSocket = new ServerSocket(30121);
              ServerSocket masterSlaveASocket = new ServerSocket(30122);
@@ -44,10 +36,6 @@ public class Master {
             String jobTypeSubmitted = "";
             int id = 0;
 
-//          Thread clientResponseThread = new Thread(() -> {
-//
-//          });
-
             while (true) {
                 // Accept client connection
                 Socket clientSocket = masterClientSocket.accept();
@@ -59,17 +47,11 @@ public class Master {
 
                 MasterLogicThread masterLogicThread = new MasterLogicThread(jobTypeSubmitted, clientThread, jobsOfTypeA,
                         jobsOfTypeB, slaveThreadA, slaveThreadB, id);
-
                 masterLogicThread.start();
-
                 id++;
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }

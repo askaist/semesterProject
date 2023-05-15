@@ -30,8 +30,6 @@ public class ClientThread extends Thread {
         return jobType;
     }
 
-
-
     @Override
     public void run() {
         try (
@@ -39,7 +37,6 @@ public class ClientThread extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))
         ) {
             System.out.println("Client thread started");
-
 
 
             System.out.println("waiting for job");
@@ -53,9 +50,6 @@ public class ClientThread extends Thread {
             }
 
             out.println("task completed");
-
-
-
 
 
         } catch (IOException | InterruptedException e) {
