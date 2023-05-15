@@ -34,7 +34,7 @@ public class MasterLogicThread extends Thread {
             jobTypeSubmitted = clientThread.getJobType();
             // Pass job type to slaveA threads
             if (jobTypeSubmitted.equals("A")) {
-                if (jobsOfTypeA.get() < 2) {
+                if (jobsOfTypeA.get() <= 5) {
                     slaveThreadA.setJobType(clientThread.getJobType());
                     jobsOfTypeA.incrementAndGet();
                     slaveThreadA.setJobID(id);
@@ -48,7 +48,7 @@ public class MasterLogicThread extends Thread {
             }
             // Pass job type to slaveB threads
             if (jobTypeSubmitted.equals("B")) {
-                if (jobsOfTypeB.get() < 2) {
+                if (jobsOfTypeB.get() <= 5) {
                     slaveThreadB.setJobType(clientThread.getJobType());
                     jobsOfTypeB.incrementAndGet();
                     slaveThreadB.setJobID(id);
