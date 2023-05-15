@@ -1,21 +1,19 @@
 package threads;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MasterLogicThread extends Thread {
 
     String jobTypeSubmitted;
     ClientThread clientThread;
-    int jobsOfTypeA;
-    int jobsOfTypeB;
+    AtomicInteger jobsOfTypeA;
+    AtomicInteger jobsOfTypeB;
     SlaveThread slaveThreadA;
     SlaveThread slaveThreadB;
     int id;
 
-
-
-
-    public MasterLogicThread(String jobTypeSubmitted, ClientThread clientThread, int jobsOfTypeA,
-                             int jobsOfTypeB, SlaveThread slaveThreadA, SlaveThread slaveThreadB,
-                             int id) {
+    public MasterLogicThread(String jobTypeSubmitted, ClientThread clientThread, AtomicInteger jobsOfTypeA, AtomicInteger jobsOfTypeB,
+                             SlaveThread slaveThreadA, SlaveThread slaveThreadB, int id) {
         this.jobTypeSubmitted = jobTypeSubmitted;
         this.clientThread = clientThread;
         this.jobsOfTypeA = jobsOfTypeA;
@@ -31,47 +29,33 @@ public class MasterLogicThread extends Thread {
             System.out.println("logic thread started");
             // Wait for job type to be set
             while (clientThread.getJobType() == null) {
-
                 Thread.sleep(200);
-
             }
             jobTypeSubmitted = clientThread.getJobType();
             // Pass job type to slaveA threads
             if (jobTypeSubmitted.equals("A")) {
-                if (jobsOfTypeA <= 5) {
+                if (jobsOfTypeA.get() < 2) {
                     slaveThreadA.setJobType(clientThread.getJobType());
-                    synchronized (this) {
-                        jobsOfTypeA++;
-                    }
-
+                    jobsOfTypeA.incrementAndGet();
                     slaveThreadA.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave A");
                 } else {
                     slaveThreadB.setJobType(clientThread.getJobType());
-                    synchronized (this) {
-                        jobsOfTypeB++;
-                    }
-
+                    jobsOfTypeB.incrementAndGet();
                     slaveThreadB.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave B");
                 }
             }
             // Pass job type to slaveB threads
             if (jobTypeSubmitted.equals("B")) {
-                if (jobsOfTypeB <= 5) {
+                if (jobsOfTypeB.get() < 2) {
                     slaveThreadB.setJobType(clientThread.getJobType());
-                    synchronized (this) {
-                        jobsOfTypeB++;
-                    }
-
+                    jobsOfTypeB.incrementAndGet();
                     slaveThreadB.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave B");
                 } else {
                     slaveThreadA.setJobType(clientThread.getJobType());
-                    synchronized (this) {
-                        jobsOfTypeA++;
-                    }
-
+                    jobsOfTypeA.incrementAndGet();
                     slaveThreadA.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave A");
                 }
@@ -81,22 +65,15 @@ public class MasterLogicThread extends Thread {
             }
             clientThread.setJobCompleted(true);
             if (clientThread.getJobType().equals("A")) {
-                synchronized (this) {
-                    jobsOfTypeA--;
-                }
-
+                jobsOfTypeA.decrementAndGet();
             }
             if (clientThread.getJobType().equals("B")) {
-                synchronized (this) {
-                    jobsOfTypeB--;
-                }
-
+                jobsOfTypeB.decrementAndGet();
             }
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
 
     }
 }
