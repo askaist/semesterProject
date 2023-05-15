@@ -40,12 +40,18 @@ public class MasterLogicThread extends Thread {
             if (jobTypeSubmitted.equals("A")) {
                 if (jobsOfTypeA <= 5) {
                     slaveThreadA.setJobType(clientThread.getJobType());
-                    jobsOfTypeA++;
+                    synchronized (this) {
+                        jobsOfTypeA++;
+                    }
+
                     slaveThreadA.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave A");
                 } else {
                     slaveThreadB.setJobType(clientThread.getJobType());
-                    jobsOfTypeB++;
+                    synchronized (this) {
+                        jobsOfTypeB++;
+                    }
+
                     slaveThreadB.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave B");
                 }
@@ -54,12 +60,18 @@ public class MasterLogicThread extends Thread {
             if (jobTypeSubmitted.equals("B")) {
                 if (jobsOfTypeB <= 5) {
                     slaveThreadB.setJobType(clientThread.getJobType());
-                    jobsOfTypeB++;
+                    synchronized (this) {
+                        jobsOfTypeB++;
+                    }
+
                     slaveThreadB.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave B");
                 } else {
                     slaveThreadA.setJobType(clientThread.getJobType());
-                    jobsOfTypeA++;
+                    synchronized (this) {
+                        jobsOfTypeA++;
+                    }
+
                     slaveThreadA.setJobID(id);
                     System.out.println("Sent job id: " + id + " to Slave A");
                 }
@@ -69,10 +81,16 @@ public class MasterLogicThread extends Thread {
             }
             clientThread.setJobCompleted(true);
             if (clientThread.getJobType().equals("A")) {
-                jobsOfTypeA--;
+                synchronized (this) {
+                    jobsOfTypeA--;
+                }
+
             }
             if (clientThread.getJobType().equals("B")) {
-                jobsOfTypeB--;
+                synchronized (this) {
+                    jobsOfTypeB--;
+                }
+
             }
 
         } catch (InterruptedException e) {
